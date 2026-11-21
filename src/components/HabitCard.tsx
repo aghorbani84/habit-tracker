@@ -59,7 +59,7 @@ export function HabitCard({ habit, selected, onSelect, onToggleToday, onDelete }
       </div>
 
       <div className="habit-streaks">
-        <div className="streak">
+        <div className="streak streak-current">
           <span className="streak-number">🔥 {currentStreak}</span>
           <span className="streak-label">day streak</span>
         </div>

@@ -91,6 +91,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div>
+          <p className="app-eyebrow">Daily rituals</p>
           <h1>Habit Tracker</h1>
           <p className="app-subtitle">
             Small steps, every day. Build streaks you can see.

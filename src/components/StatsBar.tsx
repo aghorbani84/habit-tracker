@@ -15,16 +15,21 @@ export function StatsBar({
   completionRate30d,
   weeklyRate,
 }: StatsBarProps) {
+  // One number gets to be big: the best streak is the hero, the rest sit
+  // quiet beside it. Same values, same props — presentation only.
   const stats = [
-    { label: "Active habits", value: String(totalHabits) },
     { label: "Done today", value: `${doneToday} / ${totalHabits}` },
-    { label: "Total check-ins", value: String(totalCheckIns) },
-    { label: "Best streak", value: `${bestStreak} days` },
-    { label: "Last 30 days", value: `${completionRate30d}%` },
     { label: "This week", value: `${weeklyRate}%` },
+    { label: "Last 30 days", value: `${completionRate30d}%` },
+    { label: "Total check-ins", value: String(totalCheckIns) },
+    { label: "Active habits", value: String(totalHabits) },
   ];
   return (
     <section className="stats-bar" aria-label="Overall statistics">
+      <div className="stat stat-hero">
+        <span className="stat-value">{bestStreak}</span>
+        <span className="stat-label">Best streak · days</span>
+      </div>
       {stats.map((s) => (
         <div className="stat" key={s.label}>
           <span className="stat-value">{s.value}</span>
