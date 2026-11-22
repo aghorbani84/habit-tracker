@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { buildMonthGrid, daysInMonth, todayKey } from "../lib/dates";
+import { useCssVar } from "../lib/themeColor";
 
 interface HeatmapProps {
   /** yyyy-mm-dd -> number of habits completed that day. */
@@ -8,6 +9,8 @@ interface HeatmapProps {
   maxCount: number;
   year: number;
   month: number; // 0-based
+  /** Base color for filled cells — a hex habit color, or "theme" to
+   *  follow the active theme's `--accent` token. */
   baseColor: string;
   onToggleDate?: (date: string) => void;
   interactiveHint?: string;
@@ -26,9 +29,11 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
 
-/** 5-step intensity scale: empty -> base color at increasing opacity. */
+/** 5-step intensity scale: empty -> base color at increasing opacity.
+ *  The empty cell reads the `--heat-empty` token so it follows the theme;
+ *  filled cells tint the resolved base color. */
 function cellFill(count: number, max: number, base: string): string {
-  if (count <= 0) return "#ebedf0";
+  if (count <= 0) return "var(--heat-empty)";
   const [r, g, b] = hexToRgb(base);
   const intensity = Math.min(1, count / Math.max(1, max));
   const alpha = 0.25 + 0.75 * intensity;
@@ -49,6 +54,14 @@ export function Heatmap({
     () => buildMonthGrid(year, month, countsByDate),
     [year, month, countsByDate],
   );
+
+  // The heatmap's base color follows the active theme: when the caller
+  // passes "theme", resolve the semantic `--accent` token (re-read live
+  // via MutationObserver whenever data-style / data-mode changes, so a
+  // theme switch recolors every cell with no reload). A selected habit
+  // still tints the heatmap with its own color.
+  const themeAccent = useCssVar("--accent", "#4F46E5");
+  const resolvedBase = baseColor === "theme" ? themeAccent : baseColor;
 
   const width = 26 + weeks.length * (CELL + GAP);
   const height = 26 + 7 * (CELL + GAP);
@@ -84,8 +97,12 @@ export function Heatmap({
                   width={CELL}
                   height={CELL}
                   rx={3}
-                  fill={cell.inMonth ? cellFill(cell.count, maxCount, baseColor) : "transparent"}
-                  stroke={isToday ? "#111827" : "none"}
+                  style={{
+                    fill: cell.inMonth
+                      ? cellFill(cell.count, maxCount, resolvedBase)
+                      : "transparent",
+                    stroke: isToday ? "var(--text)" : "none",
+                  }}
                   strokeWidth={isToday ? 1.5 : 0}
                   className={cell.inMonth && onToggleDate ? "heatmap-cell-clickable" : undefined}
                   onClick={
@@ -119,7 +136,7 @@ export function Heatmap({
             className="heatmap-legend-cell"
             style={{
               background:
-                level === 0 ? "#ebedf0" : cellFill(level, 4, baseColor),
+                level === 0 ? "var(--heat-empty)" : cellFill(level, 4, resolvedBase),
             }}
           />
         ))}

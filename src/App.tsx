@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
+import { Faravahar } from "./components/Faravahar";
 import { HabitCard } from "./components/HabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { Heatmap } from "./components/Heatmap";
 import { StatsBar } from "./components/StatsBar";
+import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { useLocalStorage } from "./hooks/useLocalStorage";
+import { useTheme } from "./hooks/useTheme";
 import { addDays, calcLongestStreak, todayKey } from "./lib/dates";
 import { habitsReducer, seedHabits, type Habit } from "./state/habitsReducer";
 
@@ -25,6 +28,10 @@ function countInWindow(habits: Habit[], days: number, today: string): number {
 }
 
 export default function App() {
+  // Theme: Achaemenid × Modern, each light × dark. Applied to <html>
+  // as data-style / data-mode; the CSS token sheet does the rest.
+  const { style, mode, setStyle, toggleMode } = useTheme();
+
   // Persistence: the custom useLocalStorage hook owns the stored value.
   const [persisted, setPersisted] = useLocalStorage<Habit[]>(STORAGE_KEY, seedHabits);
   // State transitions: all habit changes go through the reducer.
@@ -73,7 +80,9 @@ export default function App() {
   }, [habits, selectedHabit]);
 
   const maxCount = selectedHabit ? 1 : Math.max(1, habits.length);
-  const heatmapColor = selectedHabit ? selectedHabit.color : "#16a34a";
+  // "theme" makes the heatmap follow the active theme accent (indigo in
+  // Modern, gold in Achaemenid); a selected habit tints it its own color.
+  const heatmapColor = selectedHabit ? selectedHabit.color : "theme";
 
   const shiftMonth = (delta: number) => {
     const date = new Date(viewYear, viewMonth + delta, 1);
@@ -90,21 +99,32 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div>
+        <div className="app-title-block">
           <p className="app-eyebrow">Daily rituals</p>
-          <h1>Habit Tracker</h1>
+          <h1>
+            Habit Tracker
+            {style === "achaemenid" && <Faravahar />}
+          </h1>
           <p className="app-subtitle">
             Small steps, every day. Build streaks you can see.
           </p>
         </div>
-        <p className="app-date">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </p>
+        <div className="header-controls">
+          <ThemeSwitcher
+            style={style}
+            mode={mode}
+            onStyleChange={setStyle}
+            onToggleMode={toggleMode}
+          />
+          <p className="app-date">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </p>
+        </div>
       </header>
 
       <StatsBar

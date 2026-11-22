@@ -1,28 +1,56 @@
 /* Habit Tracker — hand-written vanilla CSS. No framework, no library.
  *
- * Stageshow redesign (2026-11-21): the same app, a new visual layer.
- * Look: quiet warm-neutral ground, white surfaces, one accent (the
- * product's own green) spent only on what the story is about — today's
- * cell, the best streak, the selected habit. Real words only where they
- * carry meaning; the rest is hairlines and air.
- * Proportion system: phi ~ 1.618. Type 13 / 21 / 34, spacing 8 / 13 / 21
- * / 34, layout columns 1 : 1.618 (habits : heatmap hero).
+ * Phase B redesign (2026-11-22): a 4-way theme system — Achaemenid ×
+ * Modern, each light × dark — from the shared showcase theme spec
+ * (~/workspace/design-mcp/theme-spec.md). Palettes from the
+ * tailwindshades MCP (Tailwind v4, oklch); Modern token discipline from
+ * the TailThemes `foundry` theme: ONE semantic token system whose
+ * values swap per combo — components read var(--bg) etc. only, never a
+ * hard-coded color. `<html>` carries data-style + data-mode.
+ *
+ * Proportion system (kept from the Stageshow pass): phi ~ 1.618.
+ * Type 13 / 21 / 34, spacing 8 / 13 / 21 / 34, layout columns
+ * 1 : 1.618 (habits : heatmap hero).
  */
 
 :root {
-  /* Surfaces — one warm neutral family */
-  --bg: #f5f5f2;
-  --surface: #ffffff;
-  --sunken: #eeeeea;
-  --text: #17181c;
-  --muted: #6e7176;
-  --faint: #9a9da2;
-  --border: #e6e6e1;
-  --accent: #16a34a;
-  --accent-dark: #15803d;
-  --accent-soft: #e8f6ec;
-  --danger: #dc2626;
-  --danger-soft: #fdecec;
+  /* Palettes — tailwindshades MCP output, Tailwind v4 @theme, oklch.
+   * Gold input #B08D2E sits at gold-600; lapis input #1D4E9E at
+   * lapis-900; accent input #4F46E5 at accent-600. */
+  --gold-50: oklch(98.7% 0.019 114.232);
+  --gold-100: oklch(96.9% 0.051 115.213);
+  --gold-200: oklch(93.8% 0.093 113.56);
+  --gold-300: oklch(89.4% 0.132 110.131);
+  --gold-400: oklch(83.7% 0.144 103.956);
+  --gold-500: oklch(77.7% 0.133 98.067);
+  --gold-600: oklch(65.9% 0.117 87.854);
+  --gold-700: oklch(53.8% 0.098 78.462);
+  --gold-800: oklch(46.5% 0.083 73.927);
+  --gold-900: oklch(41.6% 0.069 69.728);
+  --gold-950: oklch(28.6% 0.048 65.833);
+  --lapis-50: oklch(97% 0.013 248.974);
+  --lapis-100: oklch(93.9% 0.031 249.955);
+  --lapis-200: oklch(89.5% 0.057 248.498);
+  --lapis-300: oklch(82.8% 0.1 245.596);
+  --lapis-400: oklch(73.3% 0.157 248.588);
+  --lapis-500: oklch(65.4% 0.203 253.792);
+  --lapis-600: oklch(58.6% 0.236 257.251);
+  --lapis-700: oklch(53.4% 0.234 258.746);
+  --lapis-800: oklch(47.7% 0.192 260.008);
+  --lapis-900: oklch(43.9% 0.141 259.892);
+  --lapis-950: oklch(28.2% 0.088 262.305);
+  --accent-50: oklch(96.2% 0.016 272.314);
+  --accent-100: oklch(93% 0.03 272.788);
+  --accent-200: oklch(87% 0.057 274.039);
+  --accent-300: oklch(78.5% 0.101 274.713);
+  --accent-400: oklch(67.3% 0.16 276.935);
+  --accent-500: oklch(58.5% 0.205 277.117);
+  --accent-600: oklch(51.1% 0.23 276.966);
+  --accent-700: oklch(45.7% 0.211 277.023);
+  --accent-800: oklch(39.8% 0.171 277.366);
+  --accent-900: oklch(35.9% 0.126 278.697);
+  --accent-950: oklch(25.7% 0.079 281.288);
+
   /* Phi spacing: 8 / 13 / 21 / 34 */
   --sp-1: 8px;
   --sp-2: 13px;
@@ -33,10 +61,114 @@
   --fs-md: 0.9375rem; /* 15px */
   --fs-lg: 1.3125rem; /* 21px */
   --fs-xl: 2.125rem; /* 34px */
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 1px 2px rgba(23, 24, 28, 0.05), 0 8px 24px -12px rgba(23, 24, 28, 0.16);
-  --shadow-lift: 0 2px 6px rgba(23, 24, 28, 0.07), 0 16px 32px -12px rgba(23, 24, 28, 0.22);
+}
+
+/* ---------- The four combinations: semantic tokens only ---------- */
+/* --accent stays a hex anchor in every combo so the SVG heatmap can
+ * parse it (oklch -> hex verified against the spec anchors:
+ * gold-600 #B08D2E, accent-600 #4F46E5, gold-400 #d9ce51,
+ * accent-400 #7f8af7). Readable pairs per spec: modern button
+ * bg-accent-600 text-white 6.28:1; achaemenid button bg-gold-600
+ * text-gold-950 4.61:1 — NEVER bg-gold-600 text-white (3.13:1). */
+
+:root[data-style="modern"][data-mode="light"] {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --sunken: #f1f5f9;
+  --text: #0f172a;
+  --muted: #475569;
+  --faint: #94a3b8;
+  --border: #e2e8f0;
+  --accent: #4f46e5;
+  --accent-strong: #4338ca;
+  --accent-soft: #eef2ff;
+  --accent-on: #ffffff;
+  --secondary: #4f46e5;
+  --secondary-strong: #4338ca;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+  --heat-empty: #e2e8f0;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px -12px rgba(15, 23, 42, 0.16);
+  --shadow-lift: 0 2px 6px rgba(15, 23, 42, 0.07), 0 16px 32px -12px rgba(15, 23, 42, 0.22);
+}
+
+:root[data-style="modern"][data-mode="dark"] {
+  --bg: #0b1220;
+  --surface: #111c2e;
+  --sunken: #1a2942;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --faint: #64748b;
+  --border: #1e293b;
+  --accent: #7f8af7;
+  --accent-strong: #a5b4fa;
+  --accent-soft: #1e1c48;
+  --accent-on: #1e1c48;
+  --secondary: #7f8af7;
+  --secondary-strong: #a5b4fa;
+  --danger: #f87171;
+  --danger-soft: #450a0a;
+  --heat-empty: #1e293b;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 32px -12px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-style="achaemenid"][data-mode="light"] {
+  --bg: #f5efe3;
+  --surface: #fffdf6;
+  --sunken: #fbf6ea;
+  --text: #2b2118;
+  --muted: #7a6a55;
+  --faint: #a89880;
+  --border: #d9c9a8;
+  --accent: #b08d2e;
+  --accent-strong: #8d6620;
+  --accent-soft: #f3fad3;
+  --accent-on: #3a250e;
+  --secondary: #005ff0;
+  --secondary-strong: #1d4e9e;
+  --danger: #b91c1c;
+  --danger-soft: #fbe9e2;
+  --heat-empty: #e7dcc0;
+  --radius: 0.375rem;
+  --radius-sm: 0.25rem;
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --font-body: "Segoe UI", system-ui, sans-serif;
+  --shadow: 0 1px 2px rgba(43, 33, 24, 0.06), 0 8px 24px -12px rgba(43, 33, 24, 0.2);
+  --shadow-lift: 0 2px 6px rgba(43, 33, 24, 0.08), 0 16px 32px -12px rgba(43, 33, 24, 0.28);
+}
+
+:root[data-style="achaemenid"][data-mode="dark"] {
+  --bg: #171310;
+  --surface: #221b15;
+  --sunken: #2c241b;
+  --text: #ece0c8;
+  --muted: #a89880;
+  --faint: #7a6a55;
+  --border: #3d3226;
+  --accent: #d9ce51;
+  --accent-strong: #e1e477;
+  --accent-soft: #2e260a;
+  --accent-on: #3a250e;
+  --secondary: #4caeff;
+  --secondary-strong: #82c4ff;
+  --danger: #f87171;
+  --danger-soft: #450a0a;
+  --heat-empty: #3d3226;
+  --radius: 0.375rem;
+  --radius-sm: 0.25rem;
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --font-body: "Segoe UI", system-ui, sans-serif;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.4), 0 16px 32px -12px rgba(0, 0, 0, 0.65);
 }
 
 * {
@@ -45,7 +177,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -60,6 +192,11 @@ button {
 
 input {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .app {
@@ -91,26 +228,68 @@ input {
   margin-bottom: var(--sp-3);
 }
 
+.app-title-block {
+  min-width: 0;
+}
+
 .app-eyebrow {
   margin: 0 0 6px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-dark);
+  color: var(--accent-strong);
 }
 
 .app-header h1 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: var(--fs-xl);
   line-height: 1.1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Achaemenid: Cinzel, letterspaced, thin double gold rule under the
+ * header, and a subtle fluted-column / lotus-petal pattern behind it. */
+:root[data-style="achaemenid"] .app-header h1 {
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+:root[data-style="achaemenid"] .app-header {
+  border-bottom: 4px double var(--accent);
+  padding-bottom: var(--sp-2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cg fill='none' stroke='%23b08d2e' stroke-opacity='0.22' stroke-width='1'%3E%3Cpath d='M12 24 V8 M8 24 V12 M16 24 V12'/%3E%3Cpath d='M36 24 C36 14 30 10 24 10 C30 14 30 20 36 24 Z'/%3E%3Cpath d='M36 24 C36 14 42 10 48 10 C42 14 42 20 36 24 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: bottom left;
+  background-size: 48px 24px;
+}
+
+:root[data-style="achaemenid"][data-mode="dark"] .app-header {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cg fill='none' stroke='%23d9ce51' stroke-opacity='0.18' stroke-width='1'%3E%3Cpath d='M12 24 V8 M8 24 V12 M16 24 V12'/%3E%3Cpath d='M36 24 C36 14 30 10 24 10 C30 14 30 20 36 24 Z'/%3E%3Cpath d='M36 24 C36 14 42 10 48 10 C42 14 42 20 36 24 Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.faravahar {
+  color: var(--accent);
+  flex-shrink: 0;
+  height: 28px;
+  width: auto;
 }
 
 .app-subtitle {
   margin: 6px 0 0;
   color: var(--muted);
+}
+
+.header-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
 }
 
 .app-date {
@@ -123,6 +302,70 @@ input {
   font-size: var(--fs-sm);
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* ---------- Theme switcher ---------- */
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.style-segmented {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  padding: 3px;
+  gap: 2px;
+}
+
+.segmented-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  padding: 6px 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segmented-button:hover {
+  color: var(--text);
+}
+
+.segmented-button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+
+.mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.mode-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+:root[data-style="achaemenid"] .style-segmented,
+:root[data-style="achaemenid"] .segmented-button,
+:root[data-style="achaemenid"] .mode-toggle {
+  border-radius: var(--radius);
 }
 
 /* ---------- Stats ---------- */
@@ -174,12 +417,12 @@ input {
 
 .stat-hero .stat-value {
   font-size: var(--fs-xl);
-  color: var(--accent-dark);
+  color: var(--accent-strong);
   line-height: 1.1;
 }
 
 .stat-hero .stat-label {
-  color: var(--accent-dark);
+  color: var(--accent-strong);
   font-weight: 600;
 }
 
@@ -204,8 +447,13 @@ input {
 
 .section-heading h2 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: var(--fs-lg);
   letter-spacing: -0.01em;
+}
+
+:root[data-style="achaemenid"] .section-heading h2 {
+  letter-spacing: 0.04em;
 }
 
 .section-count {
@@ -273,6 +521,10 @@ input {
   flex-shrink: 0;
 }
 
+:root[data-style="achaemenid"] .habit-icon {
+  border-radius: var(--radius-sm);
+}
+
 .habit-title {
   flex: 1;
   min-width: 0;
@@ -280,8 +532,13 @@ input {
 
 .habit-title h3 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.05rem;
   letter-spacing: -0.01em;
+}
+
+:root[data-style="achaemenid"] .habit-title h3 {
+  letter-spacing: 0.02em;
 }
 
 .habit-title p {
@@ -327,7 +584,7 @@ input {
 /* The current streak is the card's headline number. */
 .streak-current .streak-number {
   font-size: var(--fs-lg);
-  color: var(--accent-dark);
+  color: var(--accent-strong);
 }
 
 .streak-label {
@@ -337,7 +594,7 @@ input {
 
 .progress-track {
   height: 6px;
-  background: #ececea;
+  background: var(--border);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -359,7 +616,7 @@ input {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #e5e7eb;
+  background: var(--border);
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
@@ -379,6 +636,7 @@ input {
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border);
   background: var(--surface);
+  color: var(--text);
   font-weight: 700;
   font-size: var(--fs-md);
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
@@ -386,7 +644,7 @@ input {
 
 .checkin-button:hover {
   border-color: var(--accent);
-  color: var(--accent-dark);
+  color: var(--accent-strong);
 }
 
 .checkin-button:active {
@@ -417,6 +675,7 @@ input {
 
 .habit-form h2 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   letter-spacing: -0.01em;
 }
@@ -442,12 +701,13 @@ input {
   border-radius: var(--radius-sm);
   outline: none;
   background: var(--surface);
+  color: var(--text);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .field input[type="text"]:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .field input[type="range"] {
@@ -509,13 +769,13 @@ input {
   border: none;
   border-radius: var(--radius-sm);
   background: var(--accent);
-  color: #ffffff;
+  color: var(--accent-on);
   font-weight: 700;
   transition: background 0.15s ease, transform 0.05s ease;
 }
 
 .primary-button:hover {
-  background: var(--accent-dark);
+  background: var(--accent-strong);
 }
 
 .primary-button:active {
@@ -546,6 +806,7 @@ input {
 .month-nav button {
   border: 1px solid var(--border);
   background: var(--surface);
+  color: var(--text);
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 1rem;
@@ -555,7 +816,7 @@ input {
 
 .month-nav button:hover {
   border-color: var(--accent);
-  color: var(--accent-dark);
+  color: var(--accent-strong);
 }
 
 .today-button {
@@ -573,6 +834,7 @@ input {
 .heatmap-filter button {
   border: 1.5px solid var(--border);
   background: var(--surface);
+  color: var(--text);
   border-radius: 999px;
   padding: 5px 12px;
   font-size: var(--fs-sm);
@@ -586,8 +848,12 @@ input {
 
 .heatmap-filter .filter-active {
   border-color: var(--accent);
-  color: var(--accent-dark);
+  color: var(--accent-strong);
   background: var(--accent-soft);
+}
+
+:root[data-style="achaemenid"] .heatmap-filter button {
+  border-radius: var(--radius-sm);
 }
 
 .heatmap-wrap {
@@ -704,6 +970,10 @@ input {
 
   .app-date {
     display: none;
+  }
+
+  .header-controls {
+    align-items: flex-start;
   }
 }
 
