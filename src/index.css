@@ -368,6 +368,40 @@ input {
   border-radius: var(--radius);
 }
 
+/* ---------- Proof strip ---------- */
+/* The audit line: one honest row of counts from the reducer state,
+   visible in the first screenshot. Accent-soft surface, accent-strong
+   text — token-only, so it recolors in all 4 combos. */
+
+.proof-strip {
+  margin: 0 0 var(--sp-3);
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.proof-strip-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1.5px solid var(--accent-strong);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+:root[data-style="achaemenid"] .proof-strip-label {
+  border-radius: var(--radius-sm);
+}
+
 /* ---------- Stats ---------- */
 /* One number gets to be big: the best streak is the hero, the other five
    stats sit quiet beside it. */
@@ -564,7 +598,8 @@ input {
 
 .habit-streaks {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 12px 16px;
   margin: 16px 0 12px;
 }
 
@@ -605,29 +640,30 @@ input {
   transition: width 0.25s ease;
 }
 
-.habit-week-dots {
+.habit-mini-heat {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 3px;
   margin: 12px 0;
 }
 
-.week-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--border);
-  transition: background 0.15s ease, transform 0.15s ease;
+.mini-heat-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--heat-empty);
 }
 
-.week-dot-done {
-  transform: scale(1.08);
+.mini-heat-cell-done {
+  transform: scale(1.05);
 }
 
-.week-dots-label {
+.mini-heat-label {
   margin-left: 6px;
   font-size: var(--fs-sm);
   color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .checkin-button {
@@ -956,6 +992,53 @@ input {
 }
 
 @media (max-width: 520px) {
+  /* ≥44px tap targets on phones (WCAG 2.5.8): every interactive
+     control reaches 44px in both dimensions where it fits, and at
+     least 44px tall everywhere. Desktop sizing is untouched. */
+  .mode-toggle {
+    width: 44px;
+    height: 44px;
+  }
+
+  .segmented-button {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .picker-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .color-swatch {
+    width: 44px;
+    height: 44px;
+  }
+
+  .month-nav button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .heatmap-filter button {
+    min-height: 44px;
+  }
+
+  .checkin-button,
+  .primary-button {
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+
+  .field input[type="range"] {
+    min-height: 44px;
+  }
+
   .stats-bar {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -983,7 +1066,7 @@ input {
   }
 
   .habit-card,
-  .week-dot,
+  .mini-heat-cell,
   .checkin-button,
   .primary-button,
   .heatmap rect {

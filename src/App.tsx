@@ -7,7 +7,8 @@ import { StatsBar } from "./components/StatsBar";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { useTheme } from "./hooks/useTheme";
-import { addDays, calcLongestStreak, todayKey } from "./lib/dates";
+import { todayKey } from "./lib/dates";
+import { formatDatasheetTitle, formatProofStrip, overallStats } from "./lib/stats";
 import { habitsReducer, seedHabits, type Habit } from "./state/habitsReducer";
 
 const STORAGE_KEY = "habit-tracker:habits-v1";
@@ -15,17 +16,6 @@ const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ];
-
-function countInWindow(habits: Habit[], days: number, today: string): number {
-  let count = 0;
-  for (let i = 0; i < days; i++) {
-    const date = addDays(today, -i);
-    for (const h of habits) {
-      if (h.completedDates.includes(date)) count += 1;
-    }
-  }
-  return count;
-}
 
 export default function App() {
   // Theme: Achaemenid × Modern, each light × dark. Applied to <html>
@@ -52,21 +42,19 @@ export default function App() {
     selectedHabitId === "all"
       ? undefined
       : habits.find((h) => h.id === selectedHabitId);
+  // Every headline number is derived from the reducer state by the
+  // stats module (pure functions over the check-in log) — the proof
+  // strip, datasheet title and StatsBar all read the same object.
+  const stats = overallStats(habits, today);
+  const { doneToday, totalCheckIns, bestStreak, completion30d: completionRate30d, weeklyRate } = stats;
+  const datasheetTitle = formatDatasheetTitle(stats);
+  const proofStrip = formatProofStrip(stats);
 
-  const doneToday = habits.filter((h) => h.completedDates.includes(today)).length;
-  const totalCheckIns = habits.reduce((sum, h) => sum + h.completedDates.length, 0);
-  const bestStreak = habits.reduce(
-    (best, h) => Math.max(best, calcLongestStreak(new Set(h.completedDates))),
-    0,
-  );
-  const completionRate30d =
-    habits.length === 0
-      ? 0
-      : Math.round((countInWindow(habits, 30, today) / (habits.length * 30)) * 100);
-  const weeklyRate =
-    habits.length === 0
-      ? 0
-      : Math.round((countInWindow(habits, 7, today) / (habits.length * 7)) * 100);
+  // Datasheet title in the document title too — it carries the live
+  // numbers everywhere the app is seen (tab, share, screenshot).
+  useEffect(() => {
+    document.title = datasheetTitle;
+  }, [datasheetTitle]);
 
   const countsByDate = useMemo(() => {
     const map = new Map<string, number>();
@@ -102,7 +90,7 @@ export default function App() {
         <div className="app-title-block">
           <p className="app-eyebrow">Daily rituals</p>
           <h1>
-            Habit Tracker
+            {datasheetTitle}
             {style === "achaemenid" && <Faravahar />}
           </h1>
           <p className="app-subtitle">
@@ -126,6 +114,13 @@ export default function App() {
           </p>
         </div>
       </header>
+
+      {/* Proof strip — one honest audit line, computed from the reducer
+          state on every render. Empty state says so, never fakes a number. */}
+      <p className="proof-strip" aria-live="polite">
+        <span className="proof-strip-label">Audit</span>
+        {proofStrip}
+      </p>
 
       <StatsBar
         totalHabits={habits.length}

@@ -1,11 +1,6 @@
 import { useMemo } from "react";
-import {
-  addDays,
-  calcCurrentStreak,
-  calcLongestStreak,
-  completionsInLast7Days,
-  todayKey,
-} from "../lib/dates";
+import { habitStats } from "../lib/stats";
+import { todayKey } from "../lib/dates";
 import type { Habit } from "../state/habitsReducer";
 
 interface HabitCardProps {
@@ -20,12 +15,11 @@ export function HabitCard({ habit, selected, onSelect, onToggleToday, onDelete }
   const today = todayKey();
   const completed = useMemo(() => new Set(habit.completedDates), [habit.completedDates]);
   const doneToday = completed.has(today);
-  const currentStreak = calcCurrentStreak(completed);
-  const longestStreak = calcLongestStreak(completed);
-  const thisWeek = completionsInLast7Days(completed);
-  const weeklyPct = Math.min(100, Math.round((thisWeek / habit.targetPerWeek) * 100));
-
-  const last7 = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6));
+  // All per-habit numbers come from the stats module (pure functions
+  // over the check-in log): streaks, 30-day %, weekly rate, 30-day strip.
+  const stats = habitStats(habit, today);
+  const { currentStreak, bestStreak: longestStreak, completion30d, checkIns } = stats;
+  const { thisWeek, weeklyPct } = { thisWeek: stats.thisWeek, weeklyPct: stats.weeklyRate };
 
   return (
     <article
@@ -73,6 +67,14 @@ export function HabitCard({ habit, selected, onSelect, onToggleToday, onDelete }
           </span>
           <span className="streak-label">this week</span>
         </div>
+        <div className="streak">
+          <span className="streak-number">{completion30d}%</span>
+          <span className="streak-label">last 30 days</span>
+        </div>
+        <div className="streak">
+          <span className="streak-number">{checkIns}</span>
+          <span className="streak-label">check-ins</span>
+        </div>
       </div>
 
       <div className="progress-track" aria-label={`${weeklyPct}% of weekly target`}>
@@ -82,16 +84,16 @@ export function HabitCard({ habit, selected, onSelect, onToggleToday, onDelete }
         />
       </div>
 
-      <div className="habit-week-dots">
-        {last7.map((date) => (
+      <div className="habit-mini-heat" aria-label={`Last 30 days: ${completion30d}% complete`}>
+        {stats.last30.map((done, i) => (
           <span
-            key={date}
-            className={`week-dot${completed.has(date) ? " week-dot-done" : ""}`}
-            style={completed.has(date) ? { background: habit.color } : undefined}
-            title={`${date}: ${completed.has(date) ? "done" : "not done"}`}
+            key={i}
+            className={`mini-heat-cell${done ? " mini-heat-cell-done" : ""}`}
+            style={done ? { background: habit.color } : undefined}
+            title={`${done ? "done" : "not done"} — ${30 - i} day${30 - i === 1 ? "" : "s"} ago`}
           />
         ))}
-        <span className="week-dots-label">last 7 days</span>
+        <span className="mini-heat-label">last 30 days · {completion30d}%</span>
       </div>
 
       <button
